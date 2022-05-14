@@ -45,7 +45,7 @@ template MerkleTreeInclusionProof(n) {
 
     for(var i = 0; i < n; i++) {
         switcher[i] = Switcher();
-        switcher[i].L <== i == 0 ? leaf : hasher[i - 1].out;
+        switcher[i].L <==  i == 0 ? leaf : hasher[i - 1].out; // if it is first iteration then we don't have any hash so pass leaf.
         switcher[i].R <== path_elements[i];
         switcher[i].sel <== path_index[i];
 

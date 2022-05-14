@@ -28,22 +28,27 @@ contract MerkleTree is Verifier {
         hashes.push(PoseidonT3.poseidon([hashes[12], hashes[13]]));
     }
 
-    function buildTree(uint32 level, uint256 _index) internal {
-        if (level <= 0) return;
-        else {
-            uint256[] memory _hashes = hashes;
-            if (index % 2 == 0) {
+    // building tree using recursion, only hashing what is needed not all nodes.
+    function buildTree(
+        uint32 level,
+        uint256 _index,
+        uint256[] storage _hashes
+    ) internal {
+        if (level <= 0) {
+            return;
+        } else {
+            if (_index % 2 == 0) {
                 uint256 hash = PoseidonT3.poseidon(
                     [_hashes[_index], _hashes[_index + 1]]
                 );
                 _hashes[_index + (1 << level)] = hash;
-                buildTree(level - 1, _index + (1 << level));
+                buildTree(level - 1, _index + (1 << level), _hashes);
             } else {
                 uint256 hash = PoseidonT3.poseidon(
                     [_hashes[_index - 1], _hashes[_index]]
                 );
                 _hashes[_index - 1 + (1 << level)] = hash;
-                buildTree(level - 1, (_index - 1 + (1 << level)));
+                buildTree(level - 1, (_index - 1 + (1 << level)), _hashes);
             }
         }
     }
@@ -51,9 +56,10 @@ contract MerkleTree is Verifier {
     function insertLeaf(uint256 hashedLeaf) public returns (uint256) {
         // [assignment] insert a hashed leaf into the Merkle tree
         hashes[index] = hashedLeaf;
-        buildTree(3, index);
+        buildTree(3, index, hashes);
         index = index + 1;
         root = hashes[14];
+        return root;
     }
 
     function verify(
@@ -63,6 +69,6 @@ contract MerkleTree is Verifier {
         uint256[1] memory input
     ) public view returns (bool) {
         // [assignment] verify an inclusion proof and check that the proof root matches current root
-        return verifyProof(a, b, c, input);
+        return verifyProof(a, b, c, input) == true && root == input[0];
     }
 }

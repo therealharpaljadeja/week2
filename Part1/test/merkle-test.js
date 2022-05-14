@@ -49,11 +49,13 @@ describe("MerkleTree", function () {
 
 		const node9 = (await merkleTree.hashes(9)).toString();
 		const node13 = (await merkleTree.hashes(13)).toString();
+
 		const Input = {
 			leaf: "1",
 			path_elements: ["2", node9, node13],
 			path_index: ["0", "0", "0"],
 		};
+
 		const { proof, publicSignals } = await groth16.fullProve(
 			Input,
 			"circuits/circuit_js/circuit.wasm",
@@ -78,7 +80,6 @@ describe("MerkleTree", function () {
 		];
 		const c = [argv[6], argv[7]];
 		const input = argv.slice(8);
-		console.log(input);
 		expect(await merkleTree.verify(a, b, c, input)).to.be.true;
 
 		// [bonus] verify the second leaf with the inclusion proof
@@ -114,7 +115,6 @@ describe("MerkleTree", function () {
 		];
 		const secondC = [secondArgv[6], secondArgv[7]];
 		const secondInput = secondArgv.slice(8);
-		console.log(secondInput);
 		expect(await merkleTree.verify(secondA, secondB, secondC, secondInput))
 			.to.be.true;
 	});
